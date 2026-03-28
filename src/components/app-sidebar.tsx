@@ -1,4 +1,4 @@
-import { Crop, Home, User, LogOut, Settings, List, FileText } from "lucide-react"
+import { Home, User, LogOut, Settings, List, FileText } from "lucide-react"
 
 import {
     Sidebar,
