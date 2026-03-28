@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import { supabase } from "@/lib/supabase"
 
 // Basic client-side hashing using Web Crypto API to avoid plaintext passwords
-async function hashPassword(password: string): Promise<string> {
+export async function hashPassword(password: string): Promise<string> {
   const msgBuffer = new TextEncoder().encode(password);
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -62,6 +62,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) {
          console.error('Supabase Insert Error:', error);
          return { error: error.message };
+      }
+
+      // Create default payment methods for the new user
+      const userId = data.id;
+      const { error: paymentError } = await supabase
+        .from('payment_type')
+        .insert([
+          {
+            user_id: userId,
+            payment_name: 'Cash',
+            payment_slug: `cash-${userId}`, // appended userId to ensure global uniqueness based on SQL
+            current_balance: 0,
+            created_by: userId
+          },
+          {
+            user_id: userId,
+            payment_name: 'Online',
+            payment_slug: `online-${userId}`,
+            current_balance: 0,
+            created_by: userId
+          }
+        ]);
+
+      if (paymentError) {
+        console.error('Failed to create default payment methods:', paymentError);
       }
       
       setUser(data);

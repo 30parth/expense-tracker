@@ -1,6 +1,8 @@
 import { InputWithField } from "@/components/input-with-field";
 import { ComboboxWithField } from "@/components/combobox-with-field";
 import { SelectWithField } from "@/components/select-with-field";
+import { PaymentMethodSelect } from "@/components/payment-method-select";
+import { TransactionTypeSelect } from "@/components/transaction-type-select";
 
 const items = [
     { label: "Apple", value: "apple" },
@@ -27,6 +29,20 @@ export const Fields = () => {
                 items={items}
                 onChange={(val) => console.log("Combobox Selected value:", val)}
                 errorMessage="Something went wrong!"
+            />
+
+            <PaymentMethodSelect
+                id="my-wallet"
+                label="Choose Wallet"
+                onChange={(val: string) => console.log("Selected Wallet ID:", val)}
+                description="Automatically loaded from Supabase for the current user!"
+            />
+
+            <TransactionTypeSelect
+                id="my-transaction-type"
+                label="Type"
+                onChange={(val: string) => console.log("Selected Transaction Type:", val)}
+                description="Filter by money coming in or going out"
             />
 
             <SelectWithField

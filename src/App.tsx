@@ -4,6 +4,8 @@ import Home from "./pages/home"
 import { Fields } from "./pages/field"
 import SignIn from "./pages/sign-in"
 import SignUp from "./pages/sign-up"
+import Settings from "./pages/settings"
+import Profile from "./pages/profile"
 import { Toaster } from "@/components/ui/sonner"
 import { ProtectedRoute } from "./components/protected-route"
 import { PublicRoute } from "./components/public-route"
@@ -22,6 +24,8 @@ export function App() {
             <Route path="/" element={<AppLayout />}>
               <Route index element={<Home />} />
               <Route path="field" element={<Fields />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="profile" element={<Profile />} />
             </Route>
           </Route>
         </Routes>

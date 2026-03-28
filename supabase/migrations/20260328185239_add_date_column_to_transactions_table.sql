@@ -1,0 +1,2 @@
+ALTER TABLE transaction
+ADD COLUMN transaction_date DATE DEFAULT CURRENT_DATE;

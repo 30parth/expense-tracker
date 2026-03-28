@@ -1,4 +1,4 @@
-import { Crop, Home, User, LogOut } from "lucide-react"
+import { Crop, Home, User, LogOut, Settings } from "lucide-react"
 
 import {
     Sidebar,
@@ -18,13 +18,18 @@ import { useAuth } from "@/context/auth-context"
 const items = [
     {
         title: "Home",
-        url: "/home",
+        url: "/",
         icon: Home,
     },
     {
         title: "Profile",
         url: "/profile",
         icon: User,
+    },
+    {
+        title: "Settings",
+        url: "/settings",
+        icon: Settings,
     },
 ]
 
