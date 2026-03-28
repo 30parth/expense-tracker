@@ -12,7 +12,7 @@ export default function SignUp() {
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
     const [loading, setLoading] = useState(false)
-    
+
     const { signUp } = useAuth()
     const navigate = useNavigate()
 
@@ -22,7 +22,7 @@ export default function SignUp() {
             toast.error("Passwords do not match!")
             return
         }
-        
+
         setLoading(true)
         const { error } = await signUp(name, email, password)
         setLoading(false)
@@ -38,10 +38,11 @@ export default function SignUp() {
     return (
         <div className="flex min-h-screen items-center justify-center p-4 bg-muted/40">
             <Card className="w-full max-w-sm">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+                <CardHeader className="text-center flex flex-col items-center">
+                    <img src="/balancify.png" alt="Balancify Logo" className="w-28 h-28 object-contain mb-2" />
+                    <CardTitle className="text-2xl font-bold">Welcome to Balancify</CardTitle>
                     <CardDescription>
-                        Enter your details below to create your account
+                        Create your account today to start seamlessly managing your daily transactions!
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>

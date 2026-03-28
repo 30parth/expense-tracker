@@ -10,7 +10,7 @@ export default function SignIn() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
-    
+
     const { signIn } = useAuth()
     const navigate = useNavigate()
 
@@ -31,10 +31,11 @@ export default function SignIn() {
     return (
         <div className="flex min-h-screen items-center justify-center p-4 bg-muted/40">
             <Card className="w-full max-w-sm">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+                <CardHeader className="text-center flex flex-col items-center">
+                    <img src="/balancify.png" alt="Balancify Logo" className="w-28 h-28 object-contain mb-2" />
+                    <CardTitle className="text-2xl font-bold">Welcome to Balancify</CardTitle>
                     <CardDescription>
-                        Enter your email below to sign in to your account
+                        Sign in to manage your daily transactions and track your funds
                     </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>

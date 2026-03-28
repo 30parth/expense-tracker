@@ -60,10 +60,10 @@ const AppSidebar = () => {
                         <SidebarMenuButton size="lg" asChild>
                             <Link to="/">
                                 <div className="">
-                                    <Crop className="h-20 w-20" />
+                                    <img src="/balancifynobg.png" alt="Balancify Logo" className="w-20 h-20 object-contain mb-2" />
                                 </div>
                                 <div>
-                                    <span>Expense Tracker</span>
+                                    <span>Balancify</span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>
