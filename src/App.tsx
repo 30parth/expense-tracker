@@ -6,6 +6,8 @@ import SignIn from "./pages/sign-in"
 import SignUp from "./pages/sign-up"
 import Settings from "./pages/settings"
 import Profile from "./pages/profile"
+import Transactions from "./pages/transactions"
+import Report from "./pages/report"
 import { Toaster } from "@/components/ui/sonner"
 import { ProtectedRoute } from "./components/protected-route"
 import { PublicRoute } from "./components/public-route"
@@ -26,6 +28,8 @@ export function App() {
               <Route path="field" element={<Fields />} />
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="transactions" element={<Transactions />} />
+              <Route path="report" element={<Report />} />
             </Route>
           </Route>
         </Routes>

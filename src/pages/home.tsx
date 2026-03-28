@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
+import { PageLoader } from "@/components/page-loader"
 
 export default function Home() {
     const { user } = useAuth()
@@ -25,8 +26,12 @@ export default function Home() {
     const [expenseCount, setExpenseCount] = useState(0)
     const [walletsList, setWalletsList] = useState<any[]>([])
 
+    const [isFetching, setIsFetching] = useState(true)
+
     const fetchDashboardData = async () => {
         if (!user) return
+        
+        setIsFetching(true)
 
         // Fetch specific transactions
         const { data, error } = await supabase
@@ -64,6 +69,7 @@ export default function Home() {
         if (!wError && wData) {
             setWalletsList(wData)
         }
+        setIsFetching(false)
     }
 
     useEffect(() => {
@@ -110,7 +116,11 @@ export default function Home() {
 
                 await supabase
                     .from('payment_type')
-                    .update({ current_balance: updatedBalance })
+                    .update({ 
+                        current_balance: updatedBalance,
+                        updated_at: new Date().toISOString(),
+                        updated_by: user.id
+                    })
                     .eq('id', parseInt(wallet))
             }
 
@@ -133,6 +143,10 @@ export default function Home() {
     }
 
     const totalBalance = walletsList.reduce((acc, w) => acc + Number(w.current_balance), 0)
+
+    if (isFetching) {
+        return <PageLoader text="Loading your financial overview..." className="min-h-[80vh]" />
+    }
 
     return (
         <div className="p-4 space-y-6">

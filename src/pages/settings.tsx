@@ -5,15 +5,18 @@ import { InputWithField } from "@/components/input-with-field"
 import { useAuth } from "@/context/auth-context"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
+import { PageLoader } from "@/components/page-loader"
 
 export default function Settings() {
     const { user } = useAuth()
     const [paymentName, setPaymentName] = useState("")
     const [loading, setLoading] = useState(false)
+    const [isFetching, setIsFetching] = useState(true)
     const [methods, setMethods] = useState<any[]>([])
 
     const fetchMethods = async () => {
         if (!user) return
+        setIsFetching(true)
         const { data, error } = await supabase
             .from('payment_type')
             .select('*')
@@ -23,6 +26,7 @@ export default function Settings() {
         if (!error && data) {
             setMethods(data)
         }
+        setIsFetching(false)
     }
 
     useEffect(() => {
@@ -58,6 +62,10 @@ export default function Settings() {
             setPaymentName("")
             fetchMethods()
         }
+    }
+
+    if (isFetching) {
+        return <PageLoader text="Loading your registered wallets..." className="min-h-[60vh]"/>
     }
 
     return (

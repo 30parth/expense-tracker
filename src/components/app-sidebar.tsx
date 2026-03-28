@@ -1,4 +1,4 @@
-import { Crop, Home, User, LogOut, Settings } from "lucide-react"
+import { Crop, Home, User, LogOut, Settings, List, FileText } from "lucide-react"
 
 import {
     Sidebar,
@@ -20,6 +20,16 @@ const items = [
         title: "Home",
         url: "/",
         icon: Home,
+    },
+    {
+        title: "Report",
+        url: "/report",
+        icon: FileText,
+    },
+    {
+        title: "Transactions",
+        url: "/transactions",
+        icon: List,
     },
     {
         title: "Profile",
