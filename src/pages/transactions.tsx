@@ -23,6 +23,7 @@ export default function Transactions() {
             `)
             .eq('user_id', user.id)
             .order('transaction_date', { ascending: false })
+            .order('created_at', { ascending: false })
 
         if (error) {
             toast.error("Failed to fetch transactions")
@@ -56,7 +57,7 @@ export default function Transactions() {
 
             const numericAmount = Number(tx.amount)
             const currentBalance = Number(walletData.current_balance)
-            
+
             // Reverse the math!
             // If it was income, it previously added money. Deleting it REMOVES money.
             // If it was expense, it previously removed money. Deleting it ADDS money.
@@ -70,7 +71,7 @@ export default function Transactions() {
             // Update wallet balance to reflect the deletion
             const { error: updateError } = await supabase
                 .from('payment_type')
-                .update({ 
+                .update({
                     current_balance: updatedBalance,
                     updated_at: new Date().toISOString(),
                     updated_by: user.id
@@ -131,7 +132,7 @@ export default function Transactions() {
                                             <span>{tx.transaction_date ? new Date(tx.transaction_date).toLocaleDateString() : new Date(tx.created_at).toLocaleDateString()}</span>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="flex items-center gap-4 self-end sm:self-auto">
                                         <div className={`text-lg font-bold tabular-nums ${tx.transaction_name === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                             {tx.transaction_name === 'income' ? '+' : '-'}${Number(tx.amount).toFixed(2)}
