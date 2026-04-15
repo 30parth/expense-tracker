@@ -1,5 +1,5 @@
 import { Home, User, LogOut, Settings, List, FileText } from "lucide-react"
-
+import React from "react"
 import {
     Sidebar,
     SidebarContent,
@@ -11,8 +11,9 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarFooter,
+    useSidebar,
 } from "@/components/ui/sidebar"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useAuth } from "@/context/auth-context"
 
 const items = [
@@ -46,6 +47,15 @@ const items = [
 const AppSidebar = () => {
     const { user, signOut } = useAuth()
     const navigate = useNavigate()
+    const location = useLocation()
+    const { isMobile, setOpenMobile } = useSidebar()
+
+    // Close mobile sidebar when location changes
+    React.useEffect(() => {
+        if (isMobile) {
+            setOpenMobile(false)
+        }
+    }, [location.pathname, isMobile, setOpenMobile])
 
     const handleSignOut = () => {
         signOut()
