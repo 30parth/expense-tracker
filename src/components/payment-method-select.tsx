@@ -12,6 +12,7 @@ interface PaymentMethodSelectProps {
     errorMessage?: string;
     description?: string;
     placeholder?: string;
+    showAllOption?: boolean;
 }
 
 export function PaymentMethodSelect({
@@ -21,7 +22,8 @@ export function PaymentMethodSelect({
     onChange,
     errorMessage,
     description,
-    placeholder = "Select a payment method"
+    placeholder = "Select a payment method",
+    showAllOption = false
 }: PaymentMethodSelectProps) {
     const { user } = useAuth()
     const [methods, setMethods] = useState<SelectItemType[]>([])
@@ -42,12 +44,19 @@ export function PaymentMethodSelect({
                 .order('payment_name', { ascending: true })
 
             if (!error && data) {
-                setMethods(
-                    data.map((method) => ({
-                        label: `${method.payment_name} ($${Number(method.current_balance).toFixed(2)})`,
-                        value: method.id.toString(),
-                    }))
-                )
+                const fetchedMethods = data.map((method) => ({
+                    label: `${method.payment_name} ($${Number(method.current_balance).toFixed(2)})`,
+                    value: method.id.toString(),
+                }))
+                
+                if (showAllOption) {
+                    setMethods([
+                        { label: "All Wallets", value: "all" },
+                        ...fetchedMethods
+                    ])
+                } else {
+                    setMethods(fetchedMethods)
+                }
             }
             setLoading(false)
         }

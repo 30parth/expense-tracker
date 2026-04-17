@@ -11,7 +11,7 @@ import { PageLoader } from "@/components/page-loader"
 
 export default function Report() {
     const { user } = useAuth()
-    const [wallet, setWallet] = useState("")
+    const [wallet, setWallet] = useState("all")
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0])
 
@@ -27,8 +27,8 @@ export default function Report() {
     const handleGenerateReport = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        if (!wallet || !startDate || !endDate) {
-            toast.error("Wallet, Start Date, and End Date are strictly required.")
+        if (!startDate || !endDate) {
+            toast.error("Start Date and End Date are strictly required.")
             return
         }
 
@@ -42,12 +42,17 @@ export default function Report() {
         try {
             // Because wallets start at 0, Opening Balance is purely the sum of all historical activity 
             // strictly BEFORE the selected start date for this specific wallet.
-            const { data: pastData, error: pastError } = await supabase
+            let pastQuery = supabase
                 .from('transaction')
                 .select('transaction_name, amount')
                 .eq('user_id', user?.id)
-                .eq('payment_method_id', parseInt(wallet))
                 .lt('transaction_date', startDate)
+
+            if (wallet && wallet !== 'all') {
+                pastQuery = pastQuery.eq('payment_method_id', parseInt(wallet))
+            }
+
+            const { data: pastData, error: pastError } = await pastQuery
 
             if (pastError) throw pastError
 
@@ -61,14 +66,19 @@ export default function Report() {
             }
 
             // Fetch the period's data
-            const { data: periodData, error: periodError } = await supabase
+            let periodQuery = supabase
                 .from('transaction')
                 .select('*')
                 .eq('user_id', user?.id)
-                .eq('payment_method_id', parseInt(wallet))
                 .gte('transaction_date', startDate)
                 .lte('transaction_date', endDate)
                 .order('transaction_date', { ascending: true })
+
+            if (wallet && wallet !== 'all') {
+                periodQuery = periodQuery.eq('payment_method_id', parseInt(wallet))
+            }
+
+            const { data: periodData, error: periodError } = await periodQuery
 
             if (periodError) throw periodError
 
@@ -106,7 +116,7 @@ export default function Report() {
             <Card className="border-border/50 shadow-sm max-w-4xl">
                 <CardHeader>
                     <CardTitle>Filtered Financial Report</CardTitle>
-                    <CardDescription>Select a wallet and a specific date range to dissect your liquidity</CardDescription>
+                    <CardDescription>Select a specific wallet or leave as "All Wallets" to dissect your liquidity across dates</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleGenerateReport} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
@@ -116,6 +126,7 @@ export default function Report() {
                             value={wallet}
                             onChange={setWallet}
                             placeholder="Select Wallet"
+                            showAllOption={true}
                         />
                         <InputWithField
                             id="start-date"

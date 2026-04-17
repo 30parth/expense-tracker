@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Trash2, Search } from "lucide-react"
 import { toast } from "sonner"
 import { PageLoader } from "@/components/page-loader"
 
@@ -11,6 +12,24 @@ export default function Transactions() {
     const { user } = useAuth()
     const [transactions, setTransactions] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+
+    const filteredTransactions = useMemo(() => {
+        if (!searchQuery.trim()) return transactions
+
+        const query = searchQuery.toLowerCase().trim()
+        return transactions.filter(tx => {
+            const description = (tx.description || "").toLowerCase()
+            const type = (tx.transaction_name || "").toLowerCase()
+            const walletName = (tx.payment_type?.payment_name || "").toLowerCase()
+            const amount = Number(tx.amount).toString()
+
+            return description.includes(query) || 
+                   type.includes(query) || 
+                   walletName.includes(query) || 
+                   amount.includes(query)
+        })
+    }, [transactions, searchQuery])
 
     const fetchTransactions = async () => {
         if (!user) return
@@ -106,17 +125,32 @@ export default function Transactions() {
         <div className="p-4 space-y-6">
             <Card className="border-border/50 shadow-sm">
                 <CardHeader>
-                    <CardTitle>Transaction History</CardTitle>
-                    <CardDescription>View and manage all your past incomes and expenses</CardDescription>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <CardTitle>Transaction History</CardTitle>
+                            <CardDescription>View and manage all your past incomes and expenses</CardDescription>
+                        </div>
+                        <div className="relative w-full md:w-72">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                                placeholder="Search transactions..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     {loading ? (
                         <PageLoader text="Fetching your transaction history..." />
                     ) : transactions.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-6">No transactions found! Start tracking on your dashboard.</p>
+                    ) : filteredTransactions.length === 0 ? (
+                        <p className="text-sm text-muted-foreground text-center py-6">No transactions match your search "{searchQuery}".</p>
                     ) : (
                         <div className="rounded-xl border divide-y overflow-hidden shadow-sm">
-                            {transactions.map((tx) => (
+                            {filteredTransactions.map((tx) => (
                                 <div key={tx.id} className="flex flex-col sm:flex-row justify-between sm:items-center p-4 hover:bg-muted/50 transition-colors gap-4">
                                     <div className="flex flex-col gap-1.5">
                                         <div className="font-semibold text-base leading-none">
