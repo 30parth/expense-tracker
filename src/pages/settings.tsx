@@ -111,7 +111,7 @@ export default function Settings() {
                                         <span className="text-xs text-muted-foreground">ID: {method.payment_slug}</span>
                                     </div>
                                     <div className="font-bold text-success dark:text-green-400">
-                                        ${Number(method.current_balance).toFixed(2)}
+                                        ₹{Number(method.current_balance).toFixed(2)}
                                     </div>
                                 </div>
                             ))

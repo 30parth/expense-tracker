@@ -155,21 +155,21 @@ export default function Report() {
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <CardWithBody titel="Opening Balance" description="At Start Date" footer={<span className="text-xs text-muted-foreground">{new Date(startDate).toLocaleDateString()}</span>}>
-                            <div className="text-2xl font-bold">${reportData.openingBalance.toFixed(2)}</div>
+                            <div className="text-2xl font-bold">₹{reportData.openingBalance.toFixed(2)}</div>
                         </CardWithBody>
                         <CardWithBody titel="Period Income" description={`During Filter`} footer={<span className="text-xs text-muted-foreground">+ in reporting period</span>}>
                             <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                +${reportData.periodIncome.toFixed(2)}
+                                +₹{reportData.periodIncome.toFixed(2)}
                             </div>
                         </CardWithBody>
                         <CardWithBody titel="Period Expense" description={`During Filter`} footer={<span className="text-xs text-muted-foreground">- in reporting period</span>}>
                             <div className="text-2xl font-bold text-red-600 dark:text-red-400">
-                                -${reportData.periodExpense.toFixed(2)}
+                                -₹{reportData.periodExpense.toFixed(2)}
                             </div>
                         </CardWithBody>
                         <CardWithBody titel="Closing Balance" description="At End Date" footer={<span className="text-xs text-muted-foreground">{new Date(endDate).toLocaleDateString()}</span>}>
                             <div className={`text-2xl font-bold ${reportData.closingBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                ${reportData.closingBalance.toFixed(2)}
+                                ₹{reportData.closingBalance.toFixed(2)}
                             </div>
                         </CardWithBody>
                     </div>
@@ -200,7 +200,7 @@ export default function Report() {
                                             </div>
 
                                             <div className={`text-lg self-end sm:self-auto font-bold tabular-nums ${tx.transaction_name === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                                {tx.transaction_name === 'income' ? '+' : '-'}${Number(tx.amount).toFixed(2)}
+                                                {tx.transaction_name === 'income' ? '+' : '-'}₹{Number(tx.amount).toFixed(2)}
                                             </div>
                                         </div>
                                     ))}

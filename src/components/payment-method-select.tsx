@@ -45,7 +45,7 @@ export function PaymentMethodSelect({
 
             if (!error && data) {
                 const fetchedMethods = data.map((method) => ({
-                    label: `${method.payment_name} ($${Number(method.current_balance).toFixed(2)})`,
+                    label: `${method.payment_name} (₹${Number(method.current_balance).toFixed(2)})`,
                     value: method.id.toString(),
                 }))
                 

@@ -157,7 +157,7 @@ export default function Home() {
                     footer={<span className="text-sm text-muted-foreground">From {incomeCount} transactions</span>}
                 >
                     <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                        ${totalIncome.toFixed(2)}
+                        ₹{totalIncome.toFixed(2)}
                     </div>
                 </CardWithBody>
                 <CardWithBody
@@ -166,7 +166,7 @@ export default function Home() {
                     footer={<span className="text-sm text-muted-foreground">From {expenseCount} transactions</span>}
                 >
                     <div className="text-3xl font-bold text-red-600 dark:text-red-400">
-                        ${totalExpense.toFixed(2)}
+                        ₹{totalExpense.toFixed(2)}
                     </div>
                 </CardWithBody>
                 <CardWithBody
@@ -175,7 +175,7 @@ export default function Home() {
                     footer={<span className="text-sm text-muted-foreground">Across all wallets</span>}
                 >
                     <div className={`text-3xl font-bold ${totalBalance >= 0 ? "text-green-600 dark:text-green-400" : "text-destructive"}`}>
-                        ${totalBalance.toFixed(2)}
+                        ₹{totalBalance.toFixed(2)}
                     </div>
                 </CardWithBody>
             </div>
@@ -189,7 +189,7 @@ export default function Home() {
                         footer={<span className="text-xs text-muted-foreground">{w.payment_slug}</span>}
                     >
                         <div className="text-2xl font-semibold">
-                            ${Number(w.current_balance).toFixed(2)}
+                            ₹{Number(w.current_balance).toFixed(2)}
                         </div>
                     </CardWithBody>
                 ))}

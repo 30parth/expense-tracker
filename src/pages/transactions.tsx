@@ -169,7 +169,7 @@ export default function Transactions() {
 
                                     <div className="flex items-center gap-4 self-end sm:self-auto">
                                         <div className={`text-lg font-bold tabular-nums ${tx.transaction_name === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                                            {tx.transaction_name === 'income' ? '+' : '-'}${Number(tx.amount).toFixed(2)}
+                                            {tx.transaction_name === 'income' ? '+' : '-'}₹{Number(tx.amount).toFixed(2)}
                                         </div>
                                         <Button variant="ghost" size="icon" onClick={() => handleDelete(tx)} className="text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0">
                                             <Trash2 className="h-4 w-4" />
