@@ -3,6 +3,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import type { BreadcrumbItem } from '@/types';
 import { Outlet } from 'react-router-dom'
+import { FloatingActionButton } from '@/components/floating-action-button'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -23,7 +24,8 @@ const AppLayout = () => {
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                 </header>
-                {<Outlet />}
+                <Outlet />
+                <FloatingActionButton />
             </SidebarInset>
         </SidebarProvider>
     )

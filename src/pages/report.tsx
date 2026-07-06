@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,8 +24,8 @@ export default function Report() {
         transactions: any[];
     } | null>(null)
 
-    const handleGenerateReport = async (e: React.FormEvent) => {
-        e.preventDefault()
+    const handleGenerateReport = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault()
 
         if (!startDate || !endDate) {
             toast.error("Start Date and End Date are strictly required.")
@@ -110,6 +110,18 @@ export default function Report() {
             setLoading(false)
         }
     }
+
+    useEffect(() => {
+        const handleRefresh = () => {
+            if (reportData && startDate && endDate) {
+                handleGenerateReport()
+            }
+        }
+        window.addEventListener('transaction-added', handleRefresh)
+        return () => {
+            window.removeEventListener('transaction-added', handleRefresh)
+        }
+    }, [user, reportData, startDate, endDate, wallet])
 
     return (
         <div className="p-4 space-y-6">

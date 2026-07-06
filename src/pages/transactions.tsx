@@ -54,6 +54,15 @@ export default function Transactions() {
 
     useEffect(() => {
         fetchTransactions()
+
+        const handleRefresh = () => {
+            fetchTransactions()
+        }
+
+        window.addEventListener('transaction-added', handleRefresh)
+        return () => {
+            window.removeEventListener('transaction-added', handleRefresh)
+        }
     }, [user])
 
     const handleDelete = async (tx: any) => {

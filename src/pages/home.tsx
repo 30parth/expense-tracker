@@ -74,6 +74,15 @@ export default function Home() {
 
     useEffect(() => {
         fetchDashboardData()
+
+        const handleRefresh = () => {
+            fetchDashboardData()
+        }
+
+        window.addEventListener('transaction-added', handleRefresh)
+        return () => {
+            window.removeEventListener('transaction-added', handleRefresh)
+        }
     }, [user])
 
     const handleAddTransaction = async (e: React.FormEvent) => {
