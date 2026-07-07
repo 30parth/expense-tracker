@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 import AppLayout from "./layout/app-layout"
 import Home from "./pages/home"
+import Balance from "./pages/balance"
 import { Fields } from "./pages/field"
 import SignIn from "./pages/sign-in"
 import SignUp from "./pages/sign-up"
@@ -25,6 +26,7 @@ export function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<AppLayout />}>
               <Route index element={<Home />} />
+              <Route path="balance" element={<Balance />} />
               <Route path="field" element={<Fields />} />
               <Route path="settings" element={<Settings />} />
               <Route path="profile" element={<Profile />} />
