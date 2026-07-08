@@ -6,7 +6,21 @@ import { supabase } from "@/lib/supabase"
 import { PageLoader } from "@/components/page-loader"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import {
+    Area,
+    AreaChart,
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Label,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    XAxis,
+    YAxis
+} from "recharts"
 import {
     ChartContainer,
     ChartTooltip,
@@ -16,6 +30,16 @@ import {
     type ChartConfig
 } from "@/components/ui/chart"
 import { ArrowDownRight, ArrowUpRight, Coins } from "lucide-react"
+
+const formatCompactCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+        notation: 'compact',
+        compactDisplay: 'short'
+    }).format(value)
+}
 
 interface Wallet {
     id: number
@@ -54,6 +78,7 @@ export default function Home() {
     const [chartDataList, setChartDataList] = useState<ChartDataPoint[]>([])
     const [todayIncome, setTodayIncome] = useState(0)
     const [todayExpense, setTodayExpense] = useState(0)
+    const [timeframe, setTimeframe] = useState<'7d' | '30d'>('30d')
 
     const [isFetching, setIsFetching] = useState(true)
 
@@ -220,6 +245,16 @@ export default function Home() {
     }, [fetchDashboardData])
 
     const totalBalance = walletsList.reduce((acc, w) => acc + Number(w.current_balance), 0)
+    const totalPositiveBalance = walletsList.reduce((sum, w) => sum + Math.max(0, Number(w.current_balance)), 0)
+
+    const pieData = walletsList.map((w, idx) => ({
+        name: w.payment_name,
+        value: Math.max(0, Number(w.current_balance)),
+        color: WALLET_COLORS[idx % WALLET_COLORS.length],
+        id: w.id
+    }))
+
+    const filteredChartData = timeframe === '7d' ? chartDataList.slice(-7) : chartDataList
 
     // Dynamic Chart Config matching Shadcn architecture
     const chartConfig = {
@@ -316,120 +351,219 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="pt-2">
                     <Tabs defaultValue="cashflow" className="w-full space-y-4">
-                        <div className="flex items-center justify-between">
-                            <TabsList className="bg-muted/65 p-1 rounded-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <TabsList className="bg-muted/65 p-1 rounded-lg self-start">
                                 <TabsTrigger value="cashflow">Cash Flow</TabsTrigger>
                                 <TabsTrigger value="wallets">Wallets Breakdown</TabsTrigger>
                                 <TabsTrigger value="balance">Total Balance</TabsTrigger>
                             </TabsList>
+                            
+                            {/* Timeframe Filter Buttons */}
+                            <div className="flex items-center bg-muted/65 p-0.5 rounded-lg border border-border/50 self-start sm:self-auto text-xs">
+                                <button
+                                    type="button"
+                                    onClick={() => setTimeframe('7d')}
+                                    className={`px-3 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                                        timeframe === '7d'
+                                            ? 'bg-background shadow-xs text-foreground font-semibold'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    7 Days
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTimeframe('30d')}
+                                    className={`px-3 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                                        timeframe === '30d'
+                                            ? 'bg-background shadow-xs text-foreground font-semibold'
+                                            : 'text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    30 Days
+                                </button>
+                            </div>
                         </div>
 
                         {/* Cash Flow Tab Content */}
                         <TabsContent value="cashflow" className="outline-none">
-                            <ChartContainer config={chartConfig} className="h-[320px] w-full">
-                                <AreaChart accessibilityLayer data={chartDataList} margin={{ left: 10, right: 10 }}>
-                                    <defs>
-                                        <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.0}/>
-                                        </linearGradient>
-                                        <linearGradient id="fillExpense" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4}/>
-                                            <stop offset="95%" stopColor="#ef4444" stopOpacity={0.0}/>
-                                        </linearGradient>
-                                    </defs>
+                            <ChartContainer config={chartConfig} className="h-[300px] sm:h-[350px] w-full aspect-auto">
+                                <BarChart accessibilityLayer data={filteredChartData} margin={{ left: -15, right: 10, top: 10, bottom: 5 }}>
                                     <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted/30" />
                                     <XAxis
                                         dataKey="date"
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={8}
+                                        minTickGap={15}
                                         className="text-[11px] fill-muted-foreground"
                                     />
                                     <YAxis
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={8}
-                                        tickFormatter={(val) => `₹${val}`}
+                                        tickFormatter={formatCompactCurrency}
                                         className="text-[11px] fill-muted-foreground font-mono"
+                                        width={45}
                                     />
                                     <ChartTooltip content={<ChartTooltipContent />} />
                                     <ChartLegend content={<ChartLegendContent />} />
-                                    <Area
+                                    <Bar
                                         name="Income"
                                         dataKey="income"
-                                        type="monotone"
-                                        fill="url(#fillIncome)"
-                                        stroke="#10b981"
-                                        strokeWidth={2}
+                                        fill="var(--color-income)"
+                                        radius={[4, 4, 0, 0]}
+                                        maxBarSize={30}
                                     />
-                                    <Area
+                                    <Bar
                                         name="Expense"
                                         dataKey="expense"
-                                        type="monotone"
-                                        fill="url(#fillExpense)"
-                                        stroke="#ef4444"
-                                        strokeWidth={2}
+                                        fill="var(--color-expense)"
+                                        radius={[4, 4, 0, 0]}
+                                        maxBarSize={30}
                                     />
-                                </AreaChart>
+                                </BarChart>
                             </ChartContainer>
                         </TabsContent>
 
                         {/* Wallets Breakdown Tab Content */}
                         <TabsContent value="wallets" className="outline-none">
-                            <ChartContainer config={chartConfig} className="h-[320px] w-full">
-                                <AreaChart accessibilityLayer data={chartDataList} margin={{ left: 10, right: 10 }}>
-                                    <defs>
-                                        {walletsList.map((w, idx) => {
-                                            const color = WALLET_COLORS[idx % WALLET_COLORS.length]
-                                            return (
-                                                <linearGradient key={w.id} id={`fillWallet_${w.id}`} x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor={color} stopOpacity={0.4}/>
-                                                    <stop offset="95%" stopColor={color} stopOpacity={0.0}/>
-                                                </linearGradient>
-                                            )
-                                        })}
-                                    </defs>
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted/30" />
-                                    <XAxis
-                                        dataKey="date"
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickMargin={8}
-                                        className="text-[11px] fill-muted-foreground"
-                                    />
-                                    <YAxis
-                                        tickLine={false}
-                                        axisLine={false}
-                                        tickMargin={8}
-                                        tickFormatter={(val) => `₹${val}`}
-                                        className="text-[11px] fill-muted-foreground font-mono"
-                                    />
-                                    <ChartTooltip content={<ChartTooltipContent />} />
-                                    <ChartLegend content={<ChartLegendContent />} />
-                                    {walletsList.map((w, idx) => {
-                                        const color = WALLET_COLORS[idx % WALLET_COLORS.length]
-                                        return (
-                                            <Area
-                                                key={w.id}
-                                                name={w.payment_name}
-                                                dataKey={`wallet_${w.id}`}
-                                                type="monotone"
-                                                stackId="wallets"
-                                                fill={`url(#fillWallet_${w.id})`}
-                                                stroke={color}
-                                                strokeWidth={1.5}
-                                            />
-                                        )
-                                    })}
-                                </AreaChart>
-                            </ChartContainer>
+                            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                                {/* Donut Allocation Share */}
+                                <Card className="lg:col-span-2 border border-border/40 bg-muted/10 shadow-none">
+                                    <CardHeader className="pb-2">
+                                        <CardTitle className="text-sm font-medium">Asset Allocation</CardTitle>
+                                        <CardDescription>Current balance share per wallet</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="flex flex-col items-center justify-center pb-4">
+                                        {totalPositiveBalance > 0 ? (
+                                            <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[200px] w-full">
+                                                <PieChart>
+                                                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                                    <Pie
+                                                        data={pieData}
+                                                        dataKey="value"
+                                                        nameKey="name"
+                                                        innerRadius={60}
+                                                        outerRadius={80}
+                                                        strokeWidth={5}
+                                                        paddingAngle={2}
+                                                    >
+                                                        {pieData.map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                                        ))}
+                                                        <Label
+                                                            content={({ viewBox }) => {
+                                                                if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                                                                    return (
+                                                                        <text
+                                                                            x={viewBox.cx}
+                                                                            y={viewBox.cy}
+                                                                            textAnchor="middle"
+                                                                            dominantBaseline="middle"
+                                                                        >
+                                                                            <tspan
+                                                                                x={viewBox.cx}
+                                                                                y={viewBox.cy}
+                                                                                className="fill-foreground text-lg font-bold"
+                                                                            >
+                                                                                ₹{totalBalance.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                                                                            </tspan>
+                                                                            <tspan
+                                                                                x={viewBox.cx}
+                                                                                y={(viewBox.cy || 0) + 18}
+                                                                                className="fill-muted-foreground text-[10px] font-medium"
+                                                                            >
+                                                                                Total Balance
+                                                                            </tspan>
+                                                                        </text>
+                                                                    )
+                                                                }
+                                                            }}
+                                                        />
+                                                    </Pie>
+                                                </PieChart>
+                                            </ChartContainer>
+                                        ) : (
+                                            <div className="h-[200px] flex items-center justify-center text-xs text-muted-foreground">
+                                                No positive wallet balance to display.
+                                            </div>
+                                        )}
+                                        {/* Color labels & percentage breakdown */}
+                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 w-full text-[11px] mt-2">
+                                            {walletsList.map((w, idx) => {
+                                                const color = WALLET_COLORS[idx % WALLET_COLORS.length]
+                                                const pct = totalPositiveBalance > 0
+                                                    ? (Math.max(0, Number(w.current_balance)) / totalPositiveBalance * 100).toFixed(0)
+                                                    : '0'
+                                                return (
+                                                    <div key={w.id} className="flex items-center justify-between border-b border-border/20 py-1">
+                                                        <div className="flex items-center gap-1.5 truncate">
+                                                            <div className="w-2 h-2 rounded-xs shrink-0" style={{ backgroundColor: color }} />
+                                                            <span className="truncate text-muted-foreground">{w.payment_name}</span>
+                                                        </div>
+                                                        <span className="font-semibold font-mono">{pct}%</span>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Historical Line Trend Chart */}
+                                <Card className="lg:col-span-3 border border-border/40 bg-muted/10 shadow-none">
+                                    <CardHeader className="pb-2">
+                                        <CardTitle className="text-sm font-medium">Wallet Balance Trend</CardTitle>
+                                        <CardDescription>Historical trend over {timeframe === '7d' ? '7' : '30'} days</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full aspect-auto">
+                                            <LineChart accessibilityLayer data={filteredChartData} margin={{ left: -15, right: 10, top: 10, bottom: 5 }}>
+                                                <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-muted/30" />
+                                                <XAxis
+                                                    dataKey="date"
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    tickMargin={8}
+                                                    minTickGap={15}
+                                                    className="text-[11px] fill-muted-foreground"
+                                                />
+                                                <YAxis
+                                                    tickLine={false}
+                                                    axisLine={false}
+                                                    tickMargin={8}
+                                                    tickFormatter={formatCompactCurrency}
+                                                    className="text-[11px] fill-muted-foreground font-mono"
+                                                    width={45}
+                                                />
+                                                <ChartTooltip content={<ChartTooltipContent />} />
+                                                <ChartLegend content={<ChartLegendContent />} />
+                                                {walletsList.map((w, idx) => {
+                                                    const color = WALLET_COLORS[idx % WALLET_COLORS.length]
+                                                    return (
+                                                        <Line
+                                                            key={w.id}
+                                                            name={w.payment_name}
+                                                            dataKey={`wallet_${w.id}`}
+                                                            type="monotone"
+                                                            stroke={color}
+                                                            strokeWidth={2}
+                                                            dot={false}
+                                                            activeDot={{ r: 4 }}
+                                                        />
+                                                    )
+                                                })}
+                                            </LineChart>
+                                        </ChartContainer>
+                                    </CardContent>
+                                </Card>
+                            </div>
                         </TabsContent>
 
                         {/* Balance Trend Tab Content */}
                         <TabsContent value="balance" className="outline-none">
-                            <ChartContainer config={chartConfig} className="h-[320px] w-full">
-                                <AreaChart accessibilityLayer data={chartDataList} margin={{ left: 10, right: 10 }}>
+                            <ChartContainer config={chartConfig} className="h-[300px] sm:h-[350px] w-full aspect-auto">
+                                <AreaChart accessibilityLayer data={filteredChartData} margin={{ left: -15, right: 10, top: 10, bottom: 5 }}>
                                     <defs>
                                         <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
@@ -442,14 +576,16 @@ export default function Home() {
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={8}
+                                        minTickGap={15}
                                         className="text-[11px] fill-muted-foreground"
                                     />
                                     <YAxis
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={8}
-                                        tickFormatter={(val) => `₹${val}`}
+                                        tickFormatter={formatCompactCurrency}
                                         className="text-[11px] fill-muted-foreground font-mono"
+                                        width={45}
                                     />
                                     <ChartTooltip content={<ChartTooltipContent />} />
                                     <ChartLegend content={<ChartLegendContent />} />
